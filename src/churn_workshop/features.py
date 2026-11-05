@@ -15,7 +15,7 @@ TARGET = "churned"
 def add_features(df: pd.DataFrame) -> pd.DataFrame:
     """Add derived features. Never mutates the input."""
     out = df.copy()
-    out["is_new_customer"] = (out["tenure_months"] > 6).astype(int)
+    out["is_new_customer"] = (out["tenure_months"] < 6).astype(int)
     return out
 
 
