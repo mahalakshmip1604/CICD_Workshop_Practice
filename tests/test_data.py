@@ -1,6 +1,4 @@
 import pytest
-import pandas as pd
-
 from churn_workshop.data import DataValidationError, generate_data, validate_data
 
 def test_negative_support_tickets_are_rejected():
