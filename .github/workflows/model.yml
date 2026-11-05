@@ -1,0 +1,44 @@
+name: Model
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: pip install -e ".[dev]"
+
+      - name: Train model
+        run: >
+          python -m churn_workshop.train
+          --out models/model.joblib
+          --metrics metrics.json
+
+      - name: Write metrics to job summary
+        run: |
+          echo "## Model metrics" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat metrics.json >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Quality gate
+        run: python scripts/check_metrics.py metrics.json --min-auc 0.70
+
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-${{ github.sha }}
+          path: |
+            models/model.joblib
+            metrics.json
