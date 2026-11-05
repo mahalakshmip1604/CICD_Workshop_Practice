@@ -50,6 +50,9 @@ def generate_data(n: int = 2000, seed: int = 42) -> pd.DataFrame:
 
 
 def validate_data(df: pd.DataFrame) -> pd.DataFrame:
+    if (df["support_tickets"] < 0).any():
+        raise ValueError("support_tickets cannot be negative")
+
     """Check the data contract. Returns df unchanged, or raises DataValidationError."""
     missing = set(REQUIRED_COLUMNS) - set(df.columns)
     if missing:
