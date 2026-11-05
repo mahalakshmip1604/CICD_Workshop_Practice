@@ -1,15 +1,47 @@
-# EXERCISE 1: Build your first CI pipeline.
-# This starter only proves that Actions is running. Follow docs/exercise-1-first-pipeline.md
-# to turn it into a real pipeline. A finished version lives in solutions/01-ci.yml
-name: CI
+name: First Action Workflow
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
 
 jobs:
-  hello:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "CI is alive. Now make it useful! 🚀"
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -e ".[dev]"
+
+      - name: Run Ruff Linter
+        
+        run: ruff check .
+
+      - name: Run Ruff Formatter
+        run: ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint  # This forces 'test' to wait until 'lint' passes successfully!
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e ".[serve,dev]"
+
+      - name: Run tests
+        run: pytest
+ 
