@@ -1,0 +1,39 @@
+name: Nightly retrain & audit
+
+on:
+  schedule:
+    - cron: "0 3 * * *"     # every day at 03:00 UTC
+  workflow_dispatch:         # lets you trigger it manually from the Actions tab
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Retrain on fresh data
+        run: python -m churn_workshop.train --seed ${{ github.run_number }}
+      - name: Gate
+        run: python scripts/check_metrics.py metrics.json --min-auc 0.70
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nightly-model
+          path: |
+            models/model.joblib
+            metrics.json
+          retention-days: 14
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e . pip-audit
+      - name: Scan dependencies for known vulnerabilities
+        run: pip-audit

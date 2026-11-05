@@ -1,0 +1,15 @@
+# EXERCISE 1: Build your first CI pipeline.
+# This starter only proves that Actions is running. Follow docs/exercise-1-first-pipeline.md
+# to turn it into a real pipeline. A finished version lives in solutions/01-ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "CI is alive. Now make it useful! 🚀"
