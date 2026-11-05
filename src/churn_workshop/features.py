@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-NUMERIC = ["tenure_months", "monthly_charges", "support_tickets", "is_new_customer"]
+NUMERIC = ["monthly_charges", "support_tickets", "is_new_customer"]
 CATEGORICAL = ["contract"]
 FEATURES = NUMERIC + CATEGORICAL
 TARGET = "churned"
@@ -15,7 +15,7 @@ TARGET = "churned"
 def add_features(df: pd.DataFrame) -> pd.DataFrame:
     """Add derived features. Never mutates the input."""
     out = df.copy()
-    out["is_new_customer"] = (out["tenure_months"] < 60).astype(int)
+    out["is_new_customer"] = (out["tenure_months"] < 6).astype(int)
     return out
 
 
