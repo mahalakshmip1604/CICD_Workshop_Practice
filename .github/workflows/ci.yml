@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [ main ]
 
+# Part C: Automatically cancel older, redundant runs if you push new commits quickly
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Part E: Follow the principle of least privilege (restricts token permissions)
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -30,6 +39,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     needs: lint  # This forces 'test' to wait until 'lint' passes successfully!
+    # Part A: Define the matrix strategy
+    strategy:
+      fail-fast: false # Keeps other versions running even if one fails
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -37,11 +51,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip' # Part B: Turn on automated dependency caching
 
       - name: Install dependencies
         run: pip install -e ".[serve,dev]"
 
-      - name: Run tests
-        run: pytest
+      - name: Run tests with coverage
+        # Part D1: Change test command to output xml report
+        run: pytest --cov --cov-report=xml --cov-report=term-missing
+
+      # Part D2: Upload coverage artifact ONLY from the Python 3.12 runner
+      - name: Upload coverage report
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: coverage.xml
  
