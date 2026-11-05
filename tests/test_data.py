@@ -1,6 +1,13 @@
 import pytest
+import pandas as pd
 
 from churn_workshop.data import DataValidationError, generate_data, validate_data
+
+def test_negative_support_tickets_are_rejected():
+    df = generate_data(50)
+    df.loc[0, "support_tickets"] = -1
+    with pytest.raises(ValueError, match="support_tickets"):
+        validate_data(df)
 
 
 def test_generate_data_is_reproducible():
