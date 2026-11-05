@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-NUMERIC = ["monthly_charges", "support_tickets", "is_new_customer"]
+NUMERIC = ["is_new_customer"]
 CATEGORICAL = ["contract"]
 FEATURES = NUMERIC + CATEGORICAL
 TARGET = "churned"
