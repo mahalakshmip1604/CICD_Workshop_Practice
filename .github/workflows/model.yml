@@ -32,7 +32,7 @@ jobs:
       - name: Quality gate (fails the PR if AUC is too low)
         run: python scripts/check_metrics.py metrics.json --min-auc 0.70
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: model-${{ github.sha }}
           path: |
